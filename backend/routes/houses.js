@@ -3,9 +3,14 @@ const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: "postgres://fc23b4c5a5adebd5f7b18b547966f280c1e30f64762b2b51dccf27334f84301d:sk_j4Ae1NMprDsPJPWZSUdoy@pooled.db.prisma.io:5432/postgres?sslmode=require"
+    }
+  }
+});
 
-// Middleware to check if user is logged in
 const auth = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Not logged in' });
@@ -18,7 +23,6 @@ const auth = (req, res, next) => {
   }
 };
 
-// GET all houses
 router.get('/', async (req, res) => {
   try {
     const { neighbourhood, minPrice, maxPrice, bedrooms } = req.query;
@@ -41,7 +45,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET single house
 router.get('/:id', async (req, res) => {
   try {
     const house = await prisma.house.findUnique({
@@ -54,7 +57,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST add a house (landlords only)
 router.post('/', auth, async (req, res) => {
   try {
     const {
@@ -62,7 +64,6 @@ router.post('/', auth, async (req, res) => {
       neighbourhood, bedrooms, bathrooms,
       images, landlordName, landlordPhone
     } = req.body;
-
     const house = await prisma.house.create({
       data: {
         title, description, price, location,
@@ -77,7 +78,6 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// DELETE a house
 router.delete('/:id', auth, async (req, res) => {
   try {
     await prisma.house.delete({ where: { id: req.params.id } });

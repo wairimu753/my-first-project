@@ -4,7 +4,13 @@ const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 
 const router = express.Router();
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: "postgres://fc23b4c5a5adebd5f7b18b547966f280c1e30f64762b2b51dccf27334f84301d:sk_j4Ae1NMprDsPJPWZSUdoy@pooled.db.prisma.io:5432/postgres?sslmode=require"
+    }
+  }
+});
 
 // REGISTER
 router.post('/register', async (req, res) => {
